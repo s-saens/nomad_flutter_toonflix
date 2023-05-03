@@ -1,88 +1,150 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const AlarmList();
+    return _Home();
   }
 }
 
-class AlarmList extends StatefulWidget {
-  const AlarmList({super.key});
-
+class _Home extends StatefulWidget {
   @override
-  State<AlarmList> createState() => _AlarmListState();
+  State<StatefulWidget> createState() => _HomeState();
 }
 
-class Alarm {
-  final String time;
-  final String label;
-  final bool isActive;
+class _HomeState extends State<_Home> {
+  static const int initialTime = 10;
+  int pom = 0;
+  int time = 5;
+  bool isRunning = false;
+  late Timer timer;
 
-  Alarm({required this.time, required this.label, required this.isActive});
-}
+  void reset({bool addPom = true}) {
+    if (addPom) pom++;
+    time = initialTime;
+    pause();
+  }
 
-class _AlarmListState extends State<AlarmList> {
-  final List<Alarm> alarms = [
-    Alarm(time: '6:00 AM', label: 'Morning alarm', isActive: true),
-    Alarm(time: '12:00 PM', label: 'Lunch break', isActive: false),
-    Alarm(time: '6:00 PM', label: 'Evening reminder', isActive: true),
-  ];
+  void onTick(Timer t) {
+    setState(() {
+      time--;
+      if (time <= 0) reset();
+    });
+  }
 
-  @override
-  void initState() {
-    super.initState();
-    print('initState()');
+  void start() {
+    if (isRunning) return;
+
+    setState(() {
+      isRunning = true;
+    });
+
+    timer = Timer.periodic(const Duration(seconds: 1), onTick);
+  }
+
+  void pause() {
+    if (!isRunning) return;
+
+    timer.cancel();
+
+    setState(() {
+      isRunning = false;
+    });
+  }
+
+  String secToTime(int time) {
+    int min = time ~/ 60;
+    int sec = time % 60;
+    String minStr = min.toString().padLeft(2, '0');
+    String secStr = sec.toString().padLeft(2, '0');
+    return '$minStr:$secStr';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF111111),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 60),
-            const Text(
-              'Alarms',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
+      backgroundColor: const Color.fromARGB(255, 200, 96, 88),
+      body: Column(
+        children: [
+          Flexible(
+            flex: 2,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Center(
+                  child: Text(
+                    secToTime(time),
+                    style: const TextStyle(
+                      fontSize: 80,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            flex: 4,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    color: Colors.white,
+                    icon: Icon(isRunning
+                        ? Icons.pause_circle_outline_rounded
+                        : Icons.play_circle_outline_rounded),
+                    onPressed: isRunning ? pause : start,
+                    iconSize: 128,
+                  ),
+                  const SizedBox(height: 30),
+                  IconButton(
+                    color: Colors.white,
+                    icon: const Icon(Icons.stop_circle_outlined),
+                    onPressed: () => reset(addPom: false),
+                    iconSize: 48,
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: alarms.length,
-                itemBuilder: (context, index) {
-                  final alarm = alarms[index];
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor:
-                          alarm.isActive ? Colors.green : Colors.grey,
-                      child: Icon(
-                        alarm.isActive ? Icons.check : Icons.close,
-                        color: Colors.white,
-                      ),
+          ),
+          Flexible(
+            flex: 2,
+            child: Container(
+              decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(50),
+                  ),
+                  color: Color(0xFFEFD5D5)),
+              alignment: AlignmentDirectional.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'POMODOROS',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 98, 89, 136),
+                      fontSize: 20,
                     ),
-                    title: Text(
-                      alarm.time,
-                      style: const TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(height: 30),
+                  Text(
+                    '$pom',
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 32, 20, 77),
+                      fontSize: 60,
+                      fontWeight: FontWeight.bold,
                     ),
-                    subtitle: Text(
-                      alarm.label,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
