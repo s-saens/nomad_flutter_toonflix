@@ -23,8 +23,10 @@ class _HomeState extends State<_Home> {
   late Timer timer;
 
   void reset({bool addPom = true}) {
-    if (addPom) pom++;
-    time = initialTime;
+    setState(() {
+      if (addPom) pom++;
+      time = initialTime;
+    });
     pause();
   }
 
