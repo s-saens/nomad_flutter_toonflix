@@ -33,11 +33,26 @@ class Home extends StatelessWidget {
         return ListTile(
           title: Text(webtoon.title),
           subtitle: Text(webtoon.id),
+          leading: getImage(webtoon.thumb),
         );
       },
       separatorBuilder: (context, index) {
         return const Divider();
       },
     );
+  }
+
+  Widget getImage(String url) {
+    try {
+      return Image.network(
+        url,
+        headers: const {
+          "User-Agent":
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
+        },
+      );
+    } catch (e) {
+      return const Icon(Icons.image);
+    }
   }
 }
