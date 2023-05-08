@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/home.dart';
+import 'screens/home.dart';
 
 void main() => runApp(const MyApp());
 
@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Alarm made by Chat-GPT',
       theme: ThemeData.dark(),
-      home: const HomePage(),
+      home: Home(),
     );
   }
 }
